@@ -1,0 +1,35 @@
+{
+  "name": "webgis-bpn",
+  "version": "1.0.0",
+  "description": "WebGIS Application for BPN Land Survey Team",
+  "main": "server/index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "nodemon server/index.js",
+    "client": "cd client && npm start",
+    "build": "cd client && npm run build",
+    "install-all": "npm install && cd client && npm install"
+  },
+  "keywords": [
+    "webgis",
+    "leaflet",
+    "react",
+    "bpn"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "firebase": "^12.5.0",
+    "geojson": "^0.5.0",
+    "mongoose": "^7.6.3",
+    "multer": "^1.4.5-lts.1",
+    "shapefile": "^0.6.6"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "nodemon": "^3.0.1"
+  }
+}

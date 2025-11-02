@@ -97,7 +97,7 @@ function LayerUpload({ onClose, onUploadSuccess }) {
         });
       }, 200);
 
-      const response = await axios.post(
+      await axios.post(
         `${API_URL}/api/layers`,
         uploadData,
         {

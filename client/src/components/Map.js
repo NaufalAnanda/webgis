@@ -75,6 +75,12 @@ function Map({ activeLayers, selectedFeature, onFeatureSelect, showSearch }) {
   const [userLocation, setUserLocation] = useState(null);
   const [showOSM, setShowOSM] = useState(false);
   const mapRef = useRef(null);
+  const selectedFeatureRef = useRef(selectedFeature);
+  
+  // Keep ref in sync with prop
+  useEffect(() => {
+    selectedFeatureRef.current = selectedFeature;
+  }, [selectedFeature]);
 
   useEffect(() => {
     // Fetch GeoJSON data for active layers
@@ -133,6 +139,10 @@ function Map({ activeLayers, selectedFeature, onFeatureSelect, showSearch }) {
   };
 
   const onEachFeature = (feature, layer, layerType) => {
+    // Store base style in layer for reference
+    const baseStyle = getStyle(feature, { options: { type: layerType } });
+    layer._baseStyle = baseStyle;
+    
     if (feature.properties) {
       const props = feature.properties;
       let popupContent = '<div style="max-width: 300px;">';
@@ -158,15 +168,31 @@ function Map({ activeLayers, selectedFeature, onFeatureSelect, showSearch }) {
     layer.on({
       mouseover: (e) => {
         const layer = e.target;
+        const baseStyle = layer._baseStyle || getStyle(feature, { options: { type: layerType } });
+        // Preserve layer colors while hovering
         layer.setStyle({
-          weight: 3,
-          fillOpacity: 0.5
+          ...baseStyle,
+          weight: 4,
+          fillOpacity: 0.6
         });
       },
       mouseout: (e) => {
         const layer = e.target;
-        const style = getStyle(feature, { options: { type: layerType } });
-        layer.setStyle(style);
+        const baseStyle = layer._baseStyle || getStyle(feature, { options: { type: layerType } });
+        // Check if this is the selected feature using ref to get latest value
+        const currentSelected = selectedFeatureRef.current;
+        const isSelected = currentSelected && 
+          currentSelected.properties === feature.properties;
+        // If selected, use selected style, otherwise use base style
+        if (isSelected) {
+          layer.setStyle({
+            ...baseStyle,
+            weight: 4,
+            fillOpacity: 0.6
+          });
+        } else {
+          layer.setStyle(baseStyle);
+        }
       }
     });
   };
@@ -222,6 +248,13 @@ function Map({ activeLayers, selectedFeature, onFeatureSelect, showSearch }) {
                 if (onFeatureSelect) {
                   layer.on('click', () => {
                     onFeatureSelect(feature);
+                    // Update style immediately after selection to maintain layer color
+                    const baseStyle = layer._baseStyle || getStyle(feature, { options: { type: layerInfo.type } });
+                    layer.setStyle({
+                      ...baseStyle,
+                      weight: 4,
+                      fillOpacity: 0.6
+                    });
                   });
                 }
               }}

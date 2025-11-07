@@ -2,7 +2,7 @@
   "name": "webgis-bpn",
   "version": "1.0.0",
   "description": "WebGIS Application for BPN Land Survey Team",
-  "main": "server/index.js",
+  "main": "node server/index.js",
   "scripts": {
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "server": "nodemon server/index.js",

@@ -16,6 +16,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import axios from 'axios';
 import API_URL from '../config/api';
 
+// Update jenis layer sesuai Database
 const layerTypes = [
   'Peta Bidang/Persil',
   'LSD',
@@ -23,13 +24,18 @@ const layerTypes = [
   'RTRW',
   'RDTR',
   'ZNT',
-  'Lainnya'
+  'Garis Pantai',      // Baru
+  'Hutan Hijau',      // Baru
+  'Batas Desa',        // Baru
+  'Peta Pendaftaran',  // Baru
+  'Peta Ajudikasi',    // Baru
+  'Peta Rutin'         // Baru
 ];
 
 function EditLayerDialog({ open, layer, onClose, onSuccess }) {
   const [formData, setFormData] = useState({
     name: '',
-    type: 'Lainnya',
+    type: '', // Default diubah ke nilai valid pertama
     description: ''
   });
   const [loading, setLoading] = useState(false);
@@ -39,7 +45,8 @@ function EditLayerDialog({ open, layer, onClose, onSuccess }) {
     if (layer && open) {
       setFormData({
         name: layer.name || '',
-        type: layer.type || 'Lainnya',
+        // Jika data lama masih 'Lainnya', select akan kosong memaksa user memilih tipe baru yang valid
+        type: layer.type || 'Peta Bidang/Persil', 
         description: layer.description || ''
       });
       setError('');
@@ -95,7 +102,7 @@ function EditLayerDialog({ open, layer, onClose, onSuccess }) {
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Typography variant="h6">Edit Layer</Typography>
           <Button
-            icon
+            icon="true"
             onClick={onClose}
             disabled={loading}
             sx={{ minWidth: 'auto', p: 1 }}
@@ -133,6 +140,7 @@ function EditLayerDialog({ open, layer, onClose, onSuccess }) {
             required
             margin="normal"
             disabled={loading}
+            helperText="Pilih jenis layer yang sesuai"
           >
             {layerTypes.map((type) => (
               <MenuItem key={type} value={type}>
@@ -181,4 +189,3 @@ function EditLayerDialog({ open, layer, onClose, onSuccess }) {
 }
 
 export default EditLayerDialog;
-

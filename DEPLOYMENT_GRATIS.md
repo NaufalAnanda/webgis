@@ -353,4 +353,5 @@ Setelah semua setup, aplikasi Anda akan:
 - ✅ Gratis selamanya (dengan limit yang reasonable)
 
 Selamat deploy! 🚀
+yaya
 

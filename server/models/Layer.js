@@ -9,8 +9,20 @@ const LayerSchema = new mongoose.Schema({
   type: {
     type: String,
     required: true,
-    enum: ['Peta Bidang/Persil', 'LSD', 'LP2B', 'RTRW', 'RDTR', 'ZNT', 'Lainnya'],
-    default: 'Lainnya'
+    enum: [
+      'Peta Bidang/Persil',
+      'LSD',
+      'LP2B',
+      'RTRW',
+      'RDTR',
+      'ZNT',
+      'Garis Pantai',      // Baru
+      'Batas Desa',        // Baru
+      'Peta Pendaftaran',  // Baru
+      'Peta Ajudikasi',    // Baru
+      'Peta Rutin'         // Baru
+    ],
+    default: 'Peta Bidang/Persil' // Default diubah karena 'Lainnya' dihapus
   },
   description: {
     type: String,
@@ -65,4 +77,3 @@ const LayerSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model('Layer', LayerSchema);
-

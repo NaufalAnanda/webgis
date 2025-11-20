@@ -5,10 +5,10 @@ const User = require('../models/User');
 // Admin email whitelist - tambahkan email admin di sini
 // Format: array email yang diizinkan sebagai admin
 const ADMIN_EMAILS = [
-  'naufalananda79@gmail.com'
   // Tambahkan email admin di sini, contoh:
   // 'admin@example.com',
-  // 'superadmin@example.com',
+  'naufalananda79@gmail.com'
+  // 'superadmin@example.com'
   // Email yang mengandung kata "admin" juga otomatis jadi admin
 ];
 

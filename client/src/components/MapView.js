@@ -1,40 +1,59 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import Map from './Map';
+import { useNavigate } from 'react-router-dom'; // 1. Tambah Import ini
+import axios from 'axios';
+import { Box, CircularProgress, Alert } from '@mui/material';
 import Sidebar from './Sidebar';
+import Map from './Map';
 import LayerUpload from './LayerUpload';
 import EditLayerDialog from './EditLayerDialog';
-import SearchBar from './SearchBar';
+import { useAuth } from '../contexts/AuthContext';
 import API_URL from '../config/api';
-import './MapView.css';
 
 function MapView() {
-  const navigate = useNavigate();
-  const { currentUser, userData, logout } = useAuth();
+  // 2. Ambil fungsi 'logout' dari useAuth
+  const { currentUser, isAdmin, logout } = useAuth();
+  const navigate = useNavigate(); // Hook untuk navigasi
+  
+  // --- STATE MANAGEMENT ---
   const [layers, setLayers] = useState([]);
   const [activeLayers, setActiveLayers] = useState([]);
-  const [showUpload, setShowUpload] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState(null);
-  const [editingLayer, setEditingLayer] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    if (!currentUser) {
-      navigate('/login');
+  const [showUploadDialog, setShowUploadDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [selectedLayerToEdit, setSelectedLayerToEdit] = useState(null);
+
+  // --- FETCH DATA ---
+  const fetchLayers = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API_URL}/api/layers`);
+      setLayers(response.data);
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching layers:', err);
+      setError('Gagal mengambil data layer.');
+    } finally {
+      setLoading(false);
     }
-  }, [currentUser, navigate]);
+  };
 
   useEffect(() => {
     fetchLayers();
   }, []);
 
-  const fetchLayers = async () => {
+  // --- HANDLERS ---
+
+  // 3. Fungsi Logout yang Sebenarnya
+  const handleLogout = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/layers`);
-      const data = await response.json();
-      setLayers(data);
+      await logout();       // Hapus session Firebase
+      navigate('/login');   // Pindah ke halaman Login
     } catch (error) {
-      console.error('Error fetching layers:', error);
+      console.error("Gagal logout:", error);
+      alert("Gagal logout, silakan coba lagi.");
     }
   };
 
@@ -48,96 +67,92 @@ function MapView() {
     });
   };
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/login');
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
+  const handleUploadSuccess = () => {
+    fetchLayers();
+    setShowUploadDialog(false);
   };
 
   const handleEditLayer = (layer) => {
-    setEditingLayer(layer);
-  };
-
-  const handleDeleteLayer = async (layer) => {
-    if (!window.confirm(`Apakah Anda yakin ingin menghapus layer "${layer.name}"?\n\nFile dan data layer akan dihapus permanen.`)) {
-      return;
-    }
-
-    try {
-      const response = await fetch(`${API_URL}/api/layers/${layer._id}`, {
-        method: 'DELETE'
-      });
-
-      if (response.ok) {
-        // Remove from active layers if active
-        setActiveLayers(prev => prev.filter(id => id !== layer._id));
-        // Refresh layers list
-        fetchLayers();
-        alert('Layer berhasil dihapus');
-      } else {
-        const error = await response.json();
-        alert(error.error || 'Gagal menghapus layer');
-      }
-    } catch (error) {
-      console.error('Delete layer error:', error);
-      alert('Gagal menghapus layer. Silakan coba lagi.');
-    }
+    setSelectedLayerToEdit(layer);
+    setShowEditDialog(true);
   };
 
   const handleEditSuccess = () => {
     fetchLayers();
-    setEditingLayer(null);
+    setShowEditDialog(false);
+    setSelectedLayerToEdit(null);
   };
 
-  if (!currentUser) {
-    return null;
+  const handleDeleteLayer = async (layer) => {
+    if (window.confirm(`Apakah Anda yakin ingin menghapus layer "${layer.name}"?`)) {
+      try {
+        await axios.delete(`${API_URL}/api/layers/${layer._id}`);
+        setActiveLayers(prev => prev.filter(id => id !== layer._id));
+        fetchLayers();
+      } catch (err) {
+        alert('Gagal menghapus layer');
+      }
+    }
+  };
+
+  const handleFeatureSelect = (feature) => {
+    setSelectedFeature(feature);
+  };
+
+  // --- RENDER ---
+  if (loading && layers.length === 0) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <CircularProgress />
+      </Box>
+    );
   }
 
-  const isAdmin = userData?.role === 'admin';
-
   return (
-    <div className="map-view">
+    <div style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden' }}>
+      
       <Sidebar
         layers={layers}
         activeLayers={activeLayers}
         onLayerToggle={handleLayerToggle}
-        onAddData={() => setShowUpload(true)}
-        currentUser={userData}
-        onLogout={handleLogout}
+        onAddData={() => setShowUploadDialog(true)}
+        currentUser={currentUser}
         isAdmin={isAdmin}
+        
+        // 4. Pasang fungsi handleLogout di sini
+        onLogout={handleLogout} 
+        
         onEditLayer={handleEditLayer}
         onDeleteLayer={handleDeleteLayer}
       />
-      <Map 
-        activeLayers={activeLayers}
-        selectedFeature={selectedFeature}
-        onFeatureSelect={setSelectedFeature}
-      />
-      {activeLayers.length > 0 && (
-        <SearchBar
-          onFeatureSelect={(feature) => {
-            setSelectedFeature(feature);
-          }}
+
+      <main style={{ flexGrow: 1, position: 'relative' }}>
+        {error && (
+          <Alert severity="error" sx={{ position: 'absolute', top: 10, right: 10, zIndex: 9999 }}>
+            {error}
+          </Alert>
+        )}
+
+        <Map
+          layers={layers}
           activeLayers={activeLayers}
+          selectedFeature={selectedFeature}
+          onFeatureSelect={handleFeatureSelect}
         />
-      )}
-      {isAdmin && showUpload && (
+      </main>
+
+      {showUploadDialog && (
         <LayerUpload
-          onClose={() => setShowUpload(false)}
-          onUploadSuccess={() => {
-            setShowUpload(false);
-            fetchLayers();
-          }}
+          onClose={() => setShowUploadDialog(false)}
+          onUploadSuccess={handleUploadSuccess}
         />
       )}
-      {isAdmin && editingLayer && (
+
+      {showEditDialog && selectedLayerToEdit && (
         <EditLayerDialog
-          open={!!editingLayer}
-          layer={editingLayer}
-          onClose={() => setEditingLayer(null)}
+          open={showEditDialog}
+          layer={selectedLayerToEdit}
+          onClose={() => setShowEditDialog(false)}
           onSuccess={handleEditSuccess}
         />
       )}
@@ -146,4 +161,3 @@ function MapView() {
 }
 
 export default MapView;
-

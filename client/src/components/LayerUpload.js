@@ -18,21 +18,26 @@ import API_URL from '../config/api';
 import CloseIcon from '@mui/icons-material/Close';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
+// Update daftar layer sesuai Database (Tanpa 'Lainnya')
 const layerTypes = [
-  'Peta Bidang/Persil',
   'LSD',
   'LP2B',
   'RTRW',
   'RDTR',
   'ZNT',
-  'Lainnya'
+  'Garis Pantai',
+  'Hutan Hijau',      
+  'Batas Desa',        
+  'Peta Pendaftaran',  
+  'Peta Ajudikasi',    
+  'Peta Rutin'         
 ];
 
 function LayerUpload({ onClose, onUploadSuccess }) {
   const { userData } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
-    type: 'Lainnya',
+    type: '', // Default diganti ke nilai valid pertama
     description: ''
   });
   const [file, setFile] = useState(null);
@@ -141,7 +146,7 @@ function LayerUpload({ onClose, onUploadSuccess }) {
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Typography variant="h6">Tambah Layer Baru</Typography>
           <Button
-            icon
+            icon="true"
             onClick={onClose}
             disabled={uploading}
             sx={{ minWidth: 'auto', p: 1 }}
@@ -188,6 +193,7 @@ function LayerUpload({ onClose, onUploadSuccess }) {
             required
             margin="normal"
             disabled={uploading}
+            helperText="Pilih kategori layer"
           >
             {layerTypes.map((type) => (
               <MenuItem key={type} value={type}>
@@ -260,4 +266,3 @@ function LayerUpload({ onClose, onUploadSuccess }) {
 }
 
 export default LayerUpload;
-

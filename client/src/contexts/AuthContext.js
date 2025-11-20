@@ -19,8 +19,8 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState(null);
-  const [userData, setUserData] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null); // Data Google (Auth)
+  const [userData, setUserData] = useState(null);       // Data MongoDB (Role)
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -35,6 +35,7 @@ export const AuthProvider = ({ children }) => {
             displayName: user.displayName,
             photoURL: user.photoURL
           });
+          // Simpan data dari MongoDB (yang ada role-nya) ke state userData
           setUserData(response.data.user);
         } catch (error) {
           console.error('Auth verify error:', error);
@@ -70,9 +71,14 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // --- PERBAIKAN UTAMA DI SINI ---
+  // 1. Buat variabel isAdmin berdasarkan userData (bukan currentUser)
+  const isAdmin = userData?.role === 'admin';
+
   const value = {
     currentUser,
     userData,
+    isAdmin, // 2. Masukkan isAdmin ke sini agar bisa dibaca MapView.js
     loginWithGoogle,
     logout,
     loading
@@ -84,4 +90,3 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
-

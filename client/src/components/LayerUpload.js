@@ -1,16 +1,7 @@
 import React, { useState } from 'react';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  TextField,
-  MenuItem,
-  Box,
-  Typography,
-  LinearProgress,
-  Alert
+  Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, 
+  MenuItem, Box, Typography, LinearProgress, Alert
 } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
@@ -18,19 +9,8 @@ import API_URL from '../config/api';
 import CloseIcon from '@mui/icons-material/Close';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
-// Update daftar layer sesuai Database (Tanpa 'Lainnya')
 const layerTypes = [
-  'LSD',
-  'LP2B',
-  'RTRW',
-  'RDTR',
-  'ZNT',
-  'Garis Pantai',
-  'Hutan Hijau',      
-  'Batas Desa',        
-  'Peta Pendaftaran',  
-  'Peta Ajudikasi',    
-  'Peta Rutin'         
+  'LSD', 'LP2B', 'RTRW', 'RDTR', 'ZNT', 'Garis Pantai', 'Hutan Hijau', 'Batas Desa', 'Peta Pendaftaran', 'Peta Ajudikasi', 'Peta Rutin'
 ];
 
 function LayerUpload({ onClose, onUploadSuccess }) {

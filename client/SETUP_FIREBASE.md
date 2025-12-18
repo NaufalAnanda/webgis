@@ -122,5 +122,5 @@ REACT_APP_API_URL=http://localhost:5000
 1. Cek `client/src/config/firebase.js` - pastikan tidak ada typo
 2. Clear browser cache dan reload
 3. Cek Firebase Console - pastikan project aktif
-4. Cek Network tab di browser DevTools - lihat apakah request ke Firebase berhasil
+4. Cek Network tab di browser DevTools - lihat apakah request ke Firebase berhasil iyh
 

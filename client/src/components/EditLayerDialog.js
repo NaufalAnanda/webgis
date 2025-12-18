@@ -18,7 +18,6 @@ import API_URL from '../config/api';
 
 // Update jenis layer sesuai Database
 const layerTypes = [
-  'Peta Bidang/Persil',
   'LSD',
   'LP2B',
   'RTRW',

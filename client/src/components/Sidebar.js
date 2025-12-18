@@ -20,7 +20,7 @@ const layerTypeColors = {
   'LP2B': '#FF0000',             // Merah
   'Peta Pendaftaran': '#9C27B0', // Ungu
   'Batas Desa': '#808080',       // Abu
-  'Kaw Hutan': '#008000',        // Hijau (Baru)
+  'Hutan Hijau': '#008000',      // Hijau (Baru)
   'Garis Pantai': '#0000FF',     // Biru
   'RTRW': '#FFA500',             // Oranye Terang
   'ZNT': '#00FFFF',              // Cyan

@@ -10,19 +10,19 @@ const LayerSchema = new mongoose.Schema({
     type: String,
     required: true,
     enum: [
-      'Peta Bidang/Persil',
       'LSD',
       'LP2B',
       'RTRW',
       'RDTR',
       'ZNT',
-      'Garis Pantai',      // Baru
+      'Garis Pantai',
+      'Hutan Hijau',      // Baru
       'Batas Desa',        // Baru
       'Peta Pendaftaran',  // Baru
       'Peta Ajudikasi',    // Baru
       'Peta Rutin'         // Baru
     ],
-    default: 'Peta Bidang/Persil' // Default diubah karena 'Lainnya' dihapus
+    default: '' // Default diubah karena 'Lainnya' dihapus
   },
   description: {
     type: String,

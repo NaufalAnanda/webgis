@@ -28,4 +28,3 @@ export const googleProvider = new GoogleAuthProvider();
 
 export { analytics };
 export default app;
-

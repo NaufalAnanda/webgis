@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // 1. Tambah Import ini
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Box, CircularProgress, Alert } from '@mui/material';
 import Sidebar from './Sidebar';
 import Map from './Map';
 import LayerUpload from './LayerUpload';
 import EditLayerDialog from './EditLayerDialog';
+import SearchBar from './SearchBar'; 
 import { useAuth } from '../contexts/AuthContext';
 import API_URL from '../config/api';
 
 function MapView() {
-  // 2. Ambil fungsi 'logout' dari useAuth
   const { currentUser, isAdmin, logout } = useAuth();
-  const navigate = useNavigate(); // Hook untuk navigasi
+  const navigate = useNavigate();
   
   // --- STATE MANAGEMENT ---
   const [layers, setLayers] = useState([]);
@@ -24,7 +24,7 @@ function MapView() {
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectedLayerToEdit, setSelectedLayerToEdit] = useState(null);
-
+  
   // --- FETCH DATA ---
   const fetchLayers = async () => {
     try {
@@ -45,12 +45,10 @@ function MapView() {
   }, []);
 
   // --- HANDLERS ---
-
-  // 3. Fungsi Logout yang Sebenarnya
   const handleLogout = async () => {
     try {
-      await logout();       // Hapus session Firebase
-      navigate('/login');   // Pindah ke halaman Login
+      await logout();
+      navigate('/login');
     } catch (error) {
       console.error("Gagal logout:", error);
       alert("Gagal logout, silakan coba lagi.");
@@ -118,10 +116,7 @@ function MapView() {
         onAddData={() => setShowUploadDialog(true)}
         currentUser={currentUser}
         isAdmin={isAdmin}
-        
-        // 4. Pasang fungsi handleLogout di sini
-        onLogout={handleLogout} 
-        
+        onLogout={handleLogout}
         onEditLayer={handleEditLayer}
         onDeleteLayer={handleDeleteLayer}
       />
@@ -132,6 +127,12 @@ function MapView() {
             {error}
           </Alert>
         )}
+
+        {/* --- TAMBAHAN: SEARCH BAR DI SINI --- */}
+        <SearchBar 
+          activeLayers={activeLayers} 
+          onFeatureSelect={handleFeatureSelect} 
+        />
 
         <Map
           layers={layers}

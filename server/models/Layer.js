@@ -16,13 +16,26 @@ const LayerSchema = new mongoose.Schema({
       'RDTR',
       'ZNT',
       'Garis Pantai',
-      'Hutan Hijau',      // Baru
-      'Batas Desa',        // Baru
-      'Peta Pendaftaran',  // Baru
-      'Peta Ajudikasi',    // Baru
-      'Peta Rutin'         // Baru
+      'Kawasan Hutan',      
+      'Batas Desa',        
+      'Peta Pendaftaran',  
+      'Peta Ajudikasi',    
+      'Peta Rutin'         
     ],
-    default: '' // Default diubah karena 'Lainnya' dihapus
+    default: '' 
+  },
+  tahun: {
+    type: Number,
+    required: false,
+    validate: {
+      validator: function(value) {
+        if (this.type === 'Peta Ajudikasi') {
+          return value && value >= 2016 && value <= 2019;
+        }
+        return true; // Untuk type lain, tahun opsional
+      },
+      message: 'Tahun harus diisi dan antara 2016-2019 untuk Peta Ajudikasi'
+    }
   },
   description: {
     type: String,

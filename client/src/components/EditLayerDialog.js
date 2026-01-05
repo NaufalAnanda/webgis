@@ -24,7 +24,7 @@ const layerTypes = [
   'RDTR',
   'ZNT',
   'Garis Pantai',      // Baru
-  'Hutan Hijau',      // Baru
+  'Kawasan Hutan',      // Baru
   'Batas Desa',        // Baru
   'Peta Pendaftaran',  // Baru
   'Peta Ajudikasi',    // Baru
@@ -33,20 +33,27 @@ const layerTypes = [
 
 function EditLayerDialog({ open, layer, onClose, onSuccess }) {
   const [formData, setFormData] = useState({
-    name: '',
     type: '', // Default diubah ke nilai valid pertama
-    description: ''
+    description: '',
+    tahun: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Generate nama layer otomatis berdasarkan type dan tahun
+  const generateLayerName = (type, tahun) => {
+    if (type === 'Peta Ajudikasi' && tahun) {
+      return `Peta Ajudikasi ${tahun}`;
+    }
+    return type;
+  };
+
   useEffect(() => {
     if (layer && open) {
       setFormData({
-        name: layer.name || '',
-        // Jika data lama masih 'Lainnya', select akan kosong memaksa user memilih tipe baru yang valid
-        type: layer.type || 'Peta Bidang/Persil', 
-        description: layer.description || ''
+        type: layer.type || '', 
+        description: layer.description || '',
+        tahun: layer.tahun ? layer.tahun.toString() : ''
       });
       setError('');
     }
@@ -64,16 +71,28 @@ function EditLayerDialog({ open, layer, onClose, onSuccess }) {
     e.preventDefault();
     setError('');
 
-    if (!formData.name.trim()) {
-      setError('Nama layer harus diisi');
+    if (!formData.type) {
+      setError('Jenis layer harus diisi');
       return;
     }
+
+    // Validate tahun untuk Peta Ajudikasi
+    if (formData.type === 'Peta Ajudikasi' && !formData.tahun) {
+      setError('Tahun harus diisi untuk Peta Ajudikasi');
+      return;
+    }
+
+    // Generate nama layer otomatis
+    const layerName = generateLayerName(formData.type, formData.tahun);
 
     setLoading(true);
     try {
       const response = await axios.put(
         `${API_URL}/api/layers/${layer._id}`,
-        formData
+        {
+          ...formData,
+          name: layerName
+        }
       );
 
       setLoading(false);
@@ -120,22 +139,17 @@ function EditLayerDialog({ open, layer, onClose, onSuccess }) {
 
           <TextField
             fullWidth
-            label="Nama Layer"
-            name="name"
-            value={formData.name}
-            onChange={handleInputChange}
-            required
-            margin="normal"
-            disabled={loading}
-          />
-
-          <TextField
-            fullWidth
             select
             label="Jenis Layer"
             name="type"
             value={formData.type}
-            onChange={handleInputChange}
+            onChange={(e) => {
+              handleInputChange(e);
+              // Reset tahun ketika type berubah
+              if (e.target.value !== 'Peta Ajudikasi') {
+                setFormData(prev => ({ ...prev, tahun: '' }));
+              }
+            }}
             required
             margin="normal"
             disabled={loading}
@@ -147,6 +161,26 @@ function EditLayerDialog({ open, layer, onClose, onSuccess }) {
               </MenuItem>
             ))}
           </TextField>
+
+          {formData.type === 'Peta Ajudikasi' && (
+            <TextField
+              fullWidth
+              select
+              label="Tahun"
+              name="tahun"
+              value={formData.tahun}
+              onChange={handleInputChange}
+              required
+              margin="normal"
+              disabled={loading}
+              helperText="Pilih tahun untuk Peta Ajudikasi"
+            >
+              <MenuItem value="2016">2016</MenuItem>
+              <MenuItem value="2017">2017</MenuItem>
+              <MenuItem value="2018">2018</MenuItem>
+              <MenuItem value="2019">2019</MenuItem>
+            </TextField>
+          )}
 
           <TextField
             fullWidth
@@ -177,7 +211,7 @@ function EditLayerDialog({ open, layer, onClose, onSuccess }) {
             type="submit"
             variant="contained"
             startIcon={<SaveIcon />}
-            disabled={loading || !formData.name}
+            disabled={loading || !formData.type || (formData.type === 'Peta Ajudikasi' && !formData.tahun)}
           >
             {loading ? 'Menyimpan...' : 'Simpan'}
           </Button>

@@ -20,14 +20,13 @@ const layerTypeColors = {
   'LP2B': '#FF0000',             // Merah
   'Peta Pendaftaran': '#9C27B0', // Ungu
   'Batas Desa': '#808080',       // Abu
-  'Hutan Hijau': '#008000',      // Hijau (Baru)
+  'Kawasan Hutan': '#008000',      // Hijau (Baru)
   'Garis Pantai': '#0000FF',     // Biru
   'RTRW': '#FFA500',             // Oranye Terang
   'ZNT': '#00FFFF',              // Cyan
   'RDTR': '#FF4500',             // Oranye Gelap (Orange Red)
   'Peta Ajudikasi': '#8B4513',   // Coklat
-  'Peta Rutin': '#FFFFFF',       // Putih
-  'Lainnya': '#FFFDD0'
+  'Peta Rutin': '#FFFFFF'       // Putih
 };
 
 function Sidebar({
@@ -131,7 +130,7 @@ function Sidebar({
                 <ListItem><ListItemText primary="Tidak ada layer" /></ListItem>
               ) : (
                 filteredLayers.map((layer) => {
-                  const color = layerTypeColors[layer.type] || layerTypeColors['Lainnya'];
+                  const color = layerTypeColors[layer.type] || '#FFFDD0';
                   return (
                     <ListItem 
                       key={layer._id} 
@@ -160,7 +159,9 @@ function Sidebar({
                           secondary={
                             <Box>
                               <Chip
-                                label={layer.type}
+                                label={layer.type === 'Peta Ajudikasi' && layer.tahun 
+                                  ? `${layer.type} ${layer.tahun}` 
+                                  : layer.type}
                                 size="small"
                                 sx={{
                                   height: 18, fontSize: '0.65rem', mb: 0.5,

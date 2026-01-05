@@ -132,7 +132,7 @@ function Map({ layers, activeLayers, selectedFeature, onFeatureSelect }) {
       case 'Batas Desa':
         style = { color: '#808080', fillColor: '#808080', fillOpacity: 0.4 }; // Abu
         break;
-      case 'Hutan Hijau':
+      case 'Kawasan Hutan':
         style = { color: '#008000', fillColor: '#008000', fillOpacity: 0.4 }; // Hijau
         break;
       case 'Garis Pantai':
@@ -154,7 +154,7 @@ function Map({ layers, activeLayers, selectedFeature, onFeatureSelect }) {
         style = { color: '#FFFFFF', fillColor: '#FFFFFF', fillOpacity: 0.5 }; // Putih
         break;
       default:
-        // Cream untuk Lainnya
+        // Default style
         style = { color: '#FFFDD0', fillColor: '#FFFDD0', fillOpacity: 0.4 }; 
         break;
     }
@@ -217,7 +217,7 @@ function Map({ layers, activeLayers, selectedFeature, onFeatureSelect }) {
 
           // PENTING: Cari info layer (termasuk TYPE) dari props 'layers'
           const layerInfo = layers.find(l => l._id === layerId);
-          const layerType = layerInfo ? layerInfo.type : 'Lainnya';
+          const layerType = layerInfo ? layerInfo.type : null;
 
           return (
             <GeoJSON

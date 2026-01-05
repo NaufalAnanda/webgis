@@ -66,12 +66,18 @@ router.post('/', upload.single('file'), async (req, res) => {
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    const { name, type, description, createdBy } = req.body;
+    const { name, type, description, createdBy, tahun } = req.body;
 
     if (!name || !type || !createdBy) {
       // Delete uploaded file if validation fails
       fs.unlinkSync(req.file.path);
       return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Validate tahun untuk Peta Ajudikasi
+    if (type === 'Peta Ajudikasi' && (!tahun || (tahun < 2016 || tahun > 2019))) {
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({ error: 'Tahun harus diisi dan antara 2016-2019 untuk Peta Ajudikasi' });
     }
 
     // Read and parse GeoJSON to get metadata
@@ -129,6 +135,7 @@ router.post('/', upload.single('file'), async (req, res) => {
       fileName: req.file.originalname,
       fileSize: req.file.size,
       createdBy,
+      tahun: tahun ? parseInt(tahun) : undefined,
       metadata: {
         featureCount,
         bounds: bounds
@@ -149,10 +156,15 @@ router.post('/', upload.single('file'), async (req, res) => {
 // Update layer (admin only)
 router.put('/:id', async (req, res) => {
   try {
-    const { name, type, description } = req.body;
+    const { name, type, description, tahun } = req.body;
 
     if (!name || !type) {
       return res.status(400).json({ error: 'Name and type are required' });
+    }
+
+    // Validate tahun untuk Peta Ajudikasi
+    if (type === 'Peta Ajudikasi' && (!tahun || (parseInt(tahun) < 2016 || parseInt(tahun) > 2019))) {
+      return res.status(400).json({ error: 'Tahun harus diisi dan antara 2016-2019 untuk Peta Ajudikasi' });
     }
 
     const layer = await Layer.findById(req.params.id);
@@ -164,6 +176,7 @@ router.put('/:id', async (req, res) => {
     layer.name = name;
     layer.type = type;
     layer.description = description || '';
+    layer.tahun = tahun ? parseInt(tahun) : undefined;
     
     await layer.save();
     res.json(layer);

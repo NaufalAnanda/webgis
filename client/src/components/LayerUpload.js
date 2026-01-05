@@ -1,7 +1,16 @@
 import React, { useState } from 'react';
 import {
-  Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, 
-  MenuItem, Box, Typography, LinearProgress, Alert
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+  MenuItem,
+  Box,
+  Typography,
+  LinearProgress,
+  Alert
 } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
@@ -10,20 +19,38 @@ import CloseIcon from '@mui/icons-material/Close';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 const layerTypes = [
-  'LSD', 'LP2B', 'RTRW', 'RDTR', 'ZNT', 'Garis Pantai', 'Hutan Hijau', 'Batas Desa', 'Peta Pendaftaran', 'Peta Ajudikasi', 'Peta Rutin'
+  'LSD',
+  'LP2B',
+  'RTRW',
+  'RDTR',
+  'ZNT',
+  'Garis Pantai',
+  'Kawasan Hutan',
+  'Batas Desa',
+  'Peta Pendaftaran',
+  'Peta Ajudikasi',
+  'Peta Rutin'
 ];
 
 function LayerUpload({ onClose, onUploadSuccess }) {
   const { userData } = useAuth();
   const [formData, setFormData] = useState({
-    name: '',
-    type: '', // Default diganti ke nilai valid pertama
-    description: ''
+    type: '',
+    description: '',
+    tahun: ''
   });
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const [uploadProgress, setUploadProgress] = useState(0);
+
+  // Generate nama layer otomatis berdasarkan type dan tahun
+  const generateLayerName = (type, tahun) => {
+    if (type === 'Peta Ajudikasi' && tahun) {
+      return `Peta Ajudikasi ${tahun}`;
+    }
+    return type;
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -55,17 +82,29 @@ function LayerUpload({ onClose, onUploadSuccess }) {
       return;
     }
 
-    if (!formData.name.trim()) {
-      setError('Nama layer harus diisi');
+    if (!formData.type) {
+      setError('Jenis layer harus diisi');
       return;
     }
 
+    // Validate tahun untuk Peta Ajudikasi
+    if (formData.type === 'Peta Ajudikasi' && !formData.tahun) {
+      setError('Tahun harus diisi untuk Peta Ajudikasi');
+      return;
+    }
+
+    // Generate nama layer otomatis
+    const layerName = generateLayerName(formData.type, formData.tahun);
+
     const uploadData = new FormData();
     uploadData.append('file', file);
-    uploadData.append('name', formData.name);
+    uploadData.append('name', layerName);
     uploadData.append('type', formData.type);
     uploadData.append('description', formData.description);
     uploadData.append('createdBy', userData?.uid || '');
+    if (formData.tahun) {
+      uploadData.append('tahun', formData.tahun);
+    }
 
     setUploading(true);
     setUploadProgress(0);
@@ -126,7 +165,7 @@ function LayerUpload({ onClose, onUploadSuccess }) {
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Typography variant="h6">Tambah Layer Baru</Typography>
           <Button
-            icon="true"
+            icon
             onClick={onClose}
             disabled={uploading}
             sx={{ minWidth: 'auto', p: 1 }}
@@ -154,22 +193,17 @@ function LayerUpload({ onClose, onUploadSuccess }) {
 
           <TextField
             fullWidth
-            label="Nama Layer"
-            name="name"
-            value={formData.name}
-            onChange={handleInputChange}
-            required
-            margin="normal"
-            disabled={uploading}
-          />
-
-          <TextField
-            fullWidth
             select
             label="Jenis Layer"
             name="type"
             value={formData.type}
-            onChange={handleInputChange}
+            onChange={(e) => {
+              handleInputChange(e);
+              // Reset tahun ketika type berubah
+              if (e.target.value !== 'Peta Ajudikasi') {
+                setFormData(prev => ({ ...prev, tahun: '' }));
+              }
+            }}
             required
             margin="normal"
             disabled={uploading}
@@ -181,6 +215,26 @@ function LayerUpload({ onClose, onUploadSuccess }) {
               </MenuItem>
             ))}
           </TextField>
+
+          {formData.type === 'Peta Ajudikasi' && (
+            <TextField
+              fullWidth
+              select
+              label="Tahun"
+              name="tahun"
+              value={formData.tahun}
+              onChange={handleInputChange}
+              required
+              margin="normal"
+              disabled={uploading}
+              helperText="Pilih tahun untuk Peta Ajudikasi"
+            >
+              <MenuItem value="2016">2016</MenuItem>
+              <MenuItem value="2017">2017</MenuItem>
+              <MenuItem value="2018">2018</MenuItem>
+              <MenuItem value="2019">2019</MenuItem>
+            </TextField>
+          )}
 
           <TextField
             fullWidth
@@ -217,7 +271,7 @@ function LayerUpload({ onClose, onUploadSuccess }) {
             </label>
             {file && (
               <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>
-                Ukuran: {(file.size / 1024 / 1024).toFixed(2)} MB
+                Ukuran: {(file.size / 2048 / 2048).toFixed(2)} MB
               </Typography>
             )}
           </Box>
@@ -235,7 +289,7 @@ function LayerUpload({ onClose, onUploadSuccess }) {
           <Button
             type="submit"
             variant="contained"
-            disabled={uploading || !file || !formData.name}
+            disabled={uploading || !file || !formData.type || (formData.type === 'Peta Ajudikasi' && !formData.tahun)}
           >
             {uploading ? 'Mengunggah...' : 'Unggah'}
           </Button>
@@ -246,3 +300,4 @@ function LayerUpload({ onClose, onUploadSuccess }) {
 }
 
 export default LayerUpload;
+

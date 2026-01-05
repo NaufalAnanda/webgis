@@ -5,6 +5,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { AuthProvider } from './contexts/AuthContext';
 import Login from './components/Login';
 import MapView from './components/MapView';
+import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
 const theme = createTheme({
@@ -26,8 +27,15 @@ function App() {
         <Router>
           <Routes>
             <Route path="/login" element={<Login />} />
-            <Route path="/map" element={<MapView />} />
-            <Route path="/" element={<Navigate to="/map" replace />} />
+            <Route 
+              path="/map" 
+              element={
+                <ProtectedRoute>
+                  <MapView />
+                </ProtectedRoute>
+              } 
+            />
+            <Route path="/" element={<Navigate to="/login" replace />} />
           </Routes>
         </Router>
       </AuthProvider>

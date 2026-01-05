@@ -16,7 +16,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import axios from 'axios';
 import API_URL from '../config/api';
 
-// Update jenis layer sesuai Database
+// Update jenis layer sesuai Database ya
 const layerTypes = [
   'LSD',
   'LP2B',
